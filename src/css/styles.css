@@ -18,3 +18,12 @@ body {
   max-width: 320px;
   margin-bottom: 16px;
 }
+
+.country_item {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.country_item .flag {
+  margin-left: 20px;
+}

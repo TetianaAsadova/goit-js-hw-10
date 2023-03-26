@@ -12,47 +12,56 @@ const ref = {
     countryInfo: document.querySelector('.country-info')
 };
 
-const searchQuery = '';
+let searchQuery = '';
 let countriesAmount = 0;
 
-ref.inputText.addEventListener('input', debounce(inputFetch, DEBOUNCE_DELAY));
+ref.inputText.addEventListener('input',
+    debounce(() => {
+       console.log(`ref.inputText`, ref.inputText.value);
+        searchQuery = ref.inputText.value.trim();
+        if (searchQuery !== '') {
+            fetchCountries(searchQuery).then(countries => {
+                console.log(`countries.length`, countries.length);
+                console.log(`countries`, countries);
+                if (countries.length > 10) {
+                    Notiflix.Notify.info("Too many matches found. Please enter a more specific name.");
+                } else if (countries.length === 0) {
+                    Notiflix.Notify.info("Oops, there is no country with that name");
+                } else if (countries.length === 1) {
+                    infoMarkap(countries);
+                } else if (countries.length >= 2 && countries.length <= 10) {
+                    liMarkup(countries);
+                }
+            })
+        }    
+    }, DEBOUNCE_DELAY)
+);
 
-function inputFetch() {
-    console.log(`ref.inputText`, ref.inputText.value);
-    searchQuery = ref.inputText.value.trim();
-    fetchCountries(searchQuery).then(countries => countries.map((country) => {
-        console.log(country);
-        countriesAmount += 1;
-        addMarkup(country, countriesAmount);
-    }));   
+    // const language = Object.values(languages).join(",");
+
+function liMarkup(countries) {
+    const markup = countries.map(({ name: { official }, flags: { svg } }) => {
+       
+        return `<li class="country_item">
+            <img src="${svg}" alt="Flag of ${official}"
+                 width="30" high="20">
+            <p class ="flag">${official}</p>
+        </li>`;
+    })
+    .join('');
+    ref.countryList.innerHTML = markup;
 };
 
-function addMarkup(country) {
-    const { name, capital, population, flags, languages } = country;
-    const liMarkup = `
-        <li class="country_item">
-            <p><span>${flags}</span>${name}</p>
-        </li>
-    `;
-
-    const infoMarkap = `
-        <h1><span>${flags}</span>${name}</h1>
-        <p>Capital: ${capital}</p>
-        <p>Population: ${population}</p>
-        <p>Languages: ${languages}</p>
-    `;
-
-    if (searchQuery = '') {
-        ref.countryList.innerHTML = "";
-        ref.countryInfo.innerHTML = "";
-    } else if (countriesAmount > 2 && countriesAmount < 10) {
-        ref.countryList.insertAdjacentHTML('beforeend', liMarkup);
-    } else {
-        ref.countryInfo.insertAdjacentHTML('beforeend', infoMarkap);
-    }
-
-}
-
-
-//  const { name: { official }, flags: { svg }, capital, population, languages } = country[0];
-//     const language = Object.values(languages).join(", ");
+function infoMarkap(countries) {
+    const markup = countries.map(({ name: { official }, flags: { svg }, capital, population, languages }) => {
+        const language = Object.values(languages).join(", ");
+        return `<p><img src="${svg}" alt="Flag of ${official}" 
+                width="30" high="20">
+                <b>${official}</b></p>
+            <p>Capital: ${capital}</p>
+            <p>Population: ${population}</p>
+            <p>Languages: ${language}</p>`
+    })
+    .join('');
+    ref.countryInfo.innerHTML = markup;       
+};
