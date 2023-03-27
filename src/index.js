@@ -19,12 +19,9 @@ ref.inputText.addEventListener('input',
     debounce(() => {
         ref.countryInfo.innerHTML = '';
         ref.countryList.innerHTML = '';
-       console.log(`ref.inputText`, ref.inputText.value);
         searchQuery = ref.inputText.value.trim();
         if (searchQuery !== '') {
             fetchCountries(searchQuery).then(countries => {
-                console.log(`countries.length`, countries.length);
-                console.log(`countries`, countries);
                 if (countries.length > 10) {
                     Notiflix.Notify.info("Too many matches found. Please enter a more specific name.");
                 }
@@ -42,8 +39,6 @@ ref.inputText.addEventListener('input',
         }    
     }, DEBOUNCE_DELAY)
 );
-
-    // const language = Object.values(languages).join(",");
 
 function liMarkup(countries) {
     const markup = countries.map(({ name: { official }, flags: { svg } }) => {
